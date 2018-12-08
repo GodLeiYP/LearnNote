@@ -20,7 +20,8 @@
   Provider network：管理员创建的和物理网络有直接映射关系的虚拟网络； 这种网络是可以在多个租户之间共享的。这种网络通过计算和网络节点上指定的 bridge 
 直接接入物理网络，所以默认的情况下它们是可以路由的，因此也不需要接入 Neutron Virtual Router，也不需要使用 L3 agent。使用这种网络，必须预先在各计算
 和网络节点上配置指定的网桥。
-  Tenant network：租户普通用户创建的网络，物理网络对创建者透明，其配置由Neutron根据管理员在系统中的配置决定；
+  Tenant network：租户普通用户创建的网络，物理网络对创建者透明，其配置由Neutron根据管理员在系统中的配置决定；这类用户不能创建共享的 tenant network
+（因此 Nuetron Server 的policy 设置了"create_network:shared": "rule:admin_only"。），因此这种网络是完全隔离的，也不可以被别的 tenant 共享。
   
 5.根据网络的类型，Neutron network可以分为：
   a.VLAN network(虚拟局域网)：基于物理VLAN网络实现的虚拟网络，共享同一个网络的多个VLAN网络是相互隔离的，甚至可以使用重叠的IP地址空间，每个支持
@@ -29,3 +30,36 @@ VLAN network的物理网络可以被视为一个分离的VLAN trunk，它使用�
   c.local network(本地网络)：一个只允许在本服务器内通信的虚拟网络，不知道跨服务器的通信，主要用于单节点上测试；
   d.GRE network(通用路由封装网络):一个使用GRE封装网络包的虚拟网络，GRE封装的数据包基于IP路由表来进行路由，因此GRE network不和具体的物理网络绑定；
   e.VXLAN network(虚拟可扩展网络)：基于VXLAN实现的虚拟网络，同GREnetwork一样，VXLAN network中IP包的路由也基于IP路由表，也不和具体的物理网络绑定；
+  
+6.Provider network VS Tenant network
+  Provider network是由Admin用户创建的，而Tenant network是由tenant普通用户创建的；
+  Provider network和物理网络的某段直接映射，比如对应某个VLAN，因此需要预先在物理网络中做相应的配置，而tenant network是虚拟化的网络，Neutron需要负责其
+路由等三层功能；
+  对Flat和VLAN类型的网络来说，只有Provider network才有意义，即使是这张类型的tenant network，其本质上也是一个实际的物理段；
+  对GRE和VXLAN类型的网络来说，只有tenant network才有意义，因为它本身不依赖于具体的物理网络，只是需要物理网络提供IP和组播即可；
+  
+7.子网(subnet):是一组IPv4 or IPv6地址以及与其有关联的配置；它是一个地址池，OpenStack可从中向虚拟机(VM)分配IP地址；
+
+8.端口(Port):一个Port代表虚拟网络交换机(logical network switch)上的一个虚机交换端口；虚机的网卡(VIF--Virtual Interface)会被连接到Port上，当虚机
+的VIF连接到Port后，这个vNIC就会拥有MAC地址和IP地址。Port的IP地址是从subnet中分配的；
+
+9.虚机交换机(Virtual switch)
+
+10.虚拟路由器(Virtual router):一个virtual router提供不同网段之间的IP包路由功能；
+  一个 VR 只属于创建它的租户，只用于该租户的子网之间和子网与外网的路由;
+  同一网络内的若干子网可以挂在一个 VR 上;
+  同一租户的不同网络的没有 IP 地址重叠的子网可以挂在一个 VR 上;有 IP 地址重叠的两个子网不能使用同一个 VR（添加子网到 VR 时会报错）;
+  不同租户之间的内网之间是不能使用 VR 的;
+  在网络节点上，一个 VR 运行在一个 Network namespace 内，该namespace 的名称包含该 VR 的 UUID;
+
+11.DHCP服务：向租户网络内的虚机动态分配固定IP地址；
+  一个网络可以有多个运行在不同物理网络节点上的DHCP Agent，同时向网络内的虚机提供服务；
+  一个DHCP Agent只属于一个网络，在网络节点上运行在一个network namespace内；
+  网络内的子网共享该DHCP Agent；
+  
+12.Neutron租户网络的隔离性：
+  租户之间的网络是三层隔离的，连通过 VR 做路由都不行，实在要连通的话，需要走物理网络；
+  一个租户内的不同网络之间二层隔离的，需要通过 VR 做三层连通；
+  一个网络内的不同子网也是二层隔离的，需要通过 VR 做三层连通；
+  
+
