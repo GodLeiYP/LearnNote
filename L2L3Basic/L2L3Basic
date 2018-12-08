@@ -36,3 +36,33 @@
 
 6.VXLAN隧道：用来传输经过VXLAN封装的报文，是建立在VTEP之间的一条虚拟通道；
 
+7.带有VLAN的交换机的端口有两类：
+    Access port：一个access port只支持一个VLAN，一个access port往往被分配一个vlan id。不分配vlan id 的access port有一个默认值，在进行数据
+转发时有如下规则：
+       a.未分配id的port：如果进来的数据帧没有 vlan tag，它通过 access port 后，会被插入 vlan id tag。 如果进来的一个数据帧带有 vlan id tag，它会被丢弃；
+       b.分配id的port：如果进来的数据帧没有 vlan tag，它通过 access port 后，会被插入 vlan id tag。 如果进来的一个数据帧带有 vlan id tag 并且与 
+access port所分配的 vlan id 相同，那么它会被转发；如果不同，则会被丢弃。
+   Trunk port： 一个 trunk port 支持多个 VLAN。 它通常用于连接交换机，使得不同交换机之下的机器能够互访；Trunk port 发出和收到的数据包都带有 
+VLAN header，该 header 表明了该数据包属于那个 VLAN；通常来讲，只使用 trunk port 连接两个交换机，而不是用来连接机器和交换机，因为机器不想看到它们
+收到的数据包带有 VLAN Header。
+ 
+ 8.交换机端口类型：Access、Hybrid、Trunk
+        a.Access类型的端口只能属于1个VLAN，一般用于连接计算机的端口；Access接口只能发送不带标记的数据帧;
+        b.Trunk类型的端口可以属于多个VLAN，可以接收和发送多个VLAN的报文，一般用于交换机之间连接的端口；
+        c.Hybrid类型的端口可以属于多个VLAN，可以接收和发送多个VLAN的报文，可以用于交换机之间连接，也可以用于连接用户的计算机。Hybrid端口和Trunk端口
+的不同之处在于Hybrid端口可以允许多个VLAN的报文发送时不打标签，而Trunk端口只允许缺省VLAN的报文发送时不打标签。
+
+9.ARP(Address Resolution Protocol):将IP地址转化为MAC地址；
+
+10.Overlay在网络技术领域，指的是一种网络架构上叠加的虚拟化技术模式，其大体框架是对基础网络不进行大规模修改的条件下，实现应用在网络上的承载，并能与其它
+网络业务分离，并且以基于IP的基础网络技术为主。Overlay 技术是在现有的物理网络之上构建一个虚拟网络，上层应用只与虚拟网络相关。一个Overlay网络主要由三部
+分组成：
+     边缘设备：是指与虚拟机直接相连的设备；
+     控制平面：主要负责虚拟隧道的建立维护以及主机可达性信息的通告；
+     转发平面：承载 Overlay 报文的物理网络；
+ https://images2015.cnblogs.com/blog/697113/201510/697113-20151029125725013-1592563344.jpg
+ 
+ 
+ 
+ 
+ 
