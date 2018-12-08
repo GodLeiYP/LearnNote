@@ -15,3 +15,17 @@
   Internet：由各大电信运营商所管理的公共网络，使用公共IP；
   
 3.Neutron向租户提供的虚拟的网络(netwrok)、子网(subnet)、端口(port)、交换机(switch)、路由器(router)等网络组件；
+
+4.根据创建网络的用户的权限，Neutron network可以分为：
+  Provider network：管理员创建的和物理网络有直接映射关系的虚拟网络； 这种网络是可以在多个租户之间共享的。这种网络通过计算和网络节点上指定的 bridge 
+直接接入物理网络，所以默认的情况下它们是可以路由的，因此也不需要接入 Neutron Virtual Router，也不需要使用 L3 agent。使用这种网络，必须预先在各计算
+和网络节点上配置指定的网桥。
+  Tenant network：租户普通用户创建的网络，物理网络对创建者透明，其配置由Neutron根据管理员在系统中的配置决定；
+  
+5.根据网络的类型，Neutron network可以分为：
+  a.VLAN network(虚拟局域网)：基于物理VLAN网络实现的虚拟网络，共享同一个网络的多个VLAN网络是相互隔离的，甚至可以使用重叠的IP地址空间，每个支持
+VLAN network的物理网络可以被视为一个分离的VLAN trunk，它使用一组独占的VLAN ID。其有效范围是1~4094
+  b.Flat network：基于不使用VLAN的物理网络实现的虚拟网络。每个物理网络最多只能实现一个虚拟网络；
+  c.local network(本地网络)：一个只允许在本服务器内通信的虚拟网络，不知道跨服务器的通信，主要用于单节点上测试；
+  d.GRE network(通用路由封装网络):一个使用GRE封装网络包的虚拟网络，GRE封装的数据包基于IP路由表来进行路由，因此GRE network不和具体的物理网络绑定；
+  e.VXLAN network(虚拟可扩展网络)：基于VXLAN实现的虚拟网络，同GREnetwork一样，VXLAN network中IP包的路由也基于IP路由表，也不和具体的物理网络绑定；
