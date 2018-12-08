@@ -1,4 +1,9 @@
 
+网络(L2 network)：是一个隔离的二层网段，类似于物理网络世界中的虚拟LAN(or VLAN)，更具体来讲，它是为创建它的租户而保留的一个广播域，或者被显示配置为
+共享网段。端口和子网络始终被分配给某个特定的网络。这里所谓的隔离:\
+        跨网络的子网之间的流量必须走L3 Virtual Router；
+        每个网络使用自己的DHCP Agent，每个DHCP Agent在一个Network namespace内；
+        不同网络内的IP地址可以重复(overlapping);
 
 1.LAN:(local area network):对于一台二层交换机来说，缺省时整机就是一个广播域、一个LAN；即只要连接到这个交换机的PC配置在一个IP子网内，
 即可直接进行互相访问；
@@ -30,3 +35,4 @@
 5.VNI:(VXLAN Network Identifier)是一种类似于VLAN ID的用户标示，不同VIN的虚拟机之间不能直接进行二层通信；
 
 6.VXLAN隧道：用来传输经过VXLAN封装的报文，是建立在VTEP之间的一条虚拟通道；
+
