@@ -1,1 +1,17 @@
 
+
+1.Neutron提供的网络虚拟化能力：
+  a.二层到七层网络的虚拟化：L2--virtual switch、 L3--virtual Router 和 LB、L4-L7--virtual Firewall
+  b.网络连通性：二层网络和三层网络
+  c.租户隔离性；
+  d.网络安全性；
+  e.网络扩展性；
+  f.REST API
+  g.更高级的服务，包括LBaas、FWaas、VPNaas等；
+ 
+2.在实际的数据中心中，网络可分为三层：
+  OpenStack Cloud network：OpenStack所管理的网络；
+  External Network:数据中心所管理的公司网(Intranet),虚拟机使用的Floating Ip是这个网络的地址的一部分；
+  Internet：由各大电信运营商所管理的公共网络，使用公共IP；
+  
+3.Neutron向租户提供的虚拟的网络(netwrok)、子网(subnet)、端口(port)、交换机(switch)、路由器(router)等网络组件；
