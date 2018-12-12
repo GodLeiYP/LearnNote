@@ -23,3 +23,25 @@ GRE 包。在本例子中，在 GRE 包外围实际上又有一层公网的ip包
     
 4.VxLAN 主要用于封装、转发2层报文。VXLAN 全称 Virtual eXtensible Local Area Network，简单的说就是扩充了的 VLAN，其使得多个通过三层连接的网络可以表
 现的和直接通过一台一台物理交换机连接配置而成的网络一样处在一个 LAN 中。
+     1)VxLAN网络设备三种角色：
+          a.VTEP(VXLAN Tunnel End Point)：直接与终端设备比如虚机连接的设备，负责原始以太报文的 VXLAN 封装和解封装，形态可以是虚拟交换机比如 Open
+ vSwitch，也可以是物理交换机。
+          b.VXLAN GW(VXLAN Gateway/二层网关)：用于终结VXLAN网络，将VXLAN报文转换成对应的传统二层网络送到传统以太网络，适用于VXLAN网络内服务器与远端
+ 终端或远端服务器的二层互联。
+          c.VXLAN IP GW(VXLAN IP Gateway/三层网关)：用于终结 VXLAN 网络，将 VXLAN 报文转换成传统三层报文送至 IP 网络，适用于 VXLAN 网络内服务器与
+ 远端终端之间的三层互访；
+     2)Overlay 网络架构的实现(就纯大二层):
+          a.网络Overlay：使用物理交换机做VxLAN网络设备
+          b.主机Overlay：使用服务器上的软件实现VxLAN网络设备
+          c.以及两种方式同时部署的混合Overlay。
+     3)VxLAN 网络中，虚机之间的三种互访形式：
+          a.相同VXLAN内 VM之间互访：
+               单播报文在 VTEP 处查找目的MAC地址，确定对应的VTEP主机IP地址
+               根据目的和源VTEP主机IP地址封装VXLAN报文头后发送给IP核心网
+               IP 核心内部根据路由转发该UDP报文给目的VTEP
+               目的VTEP解封装VXLAN报文头后按照目的MAC转发报文给目的VM
+          b.VXLAN VM与VLAN VM之间互访，通过VXLAN GW来完成，
+               VXLAN 报文先通过VXLAN 内部转发模式对报文进行封装，目的IP为VXLAN GW
+               在VXLAN GW把VXLAN报文解封装后，匹配二层转发表项进行转发，VLAN到VXLAN的访问流程正好相反
+          c.不同VXLAN内 VM之间需要互访经过VXLAN IP GW 完成
+               在VXLAN IP GW上匹配 VXLAN Maping 表项进行转发，报文封装模式同同一VXLAN内VM一致
