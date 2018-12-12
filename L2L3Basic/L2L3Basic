@@ -23,7 +23,8 @@
   VLAN是基于L2的，所以很难跨越L2的边界，在很大程度上限制了网络的灵活性；
   VLAN操作需要手工接入；
   
-3.VXLAN(Virtual eXtensible Local Network):主要用于封装、转发2层报文，即扩充可的VLAN，使得多个通过三层连接的网络可以表现的和直接通过一台台物理交换机连接配置而成的网络一样处在一个LAN中；
+3.VXLAN(Virtual eXtensible Local Network):主要用于封装、转发2层报文，即扩充可的VLAN，使得多个通过三层连接的网络可以表现的和直接通过一台台物理交换
+机连接配置而成的网络一样处在一个LAN中；
     实现机制：
   在二层报文加上个vxlan header，封装在一个UDP包中进行传输，其中会包括一个24位的ID(VNI),这样可以实现穿越三层网络；
     不足之处：vxlan要涉及封装和解封装，影响性能；
@@ -38,8 +39,9 @@
 7.带有VLAN的交换机的端口有两类：
     Access port：一个access port只支持一个VLAN，一个access port往往被分配一个vlan id。不分配vlan id 的access port有一个默认值，在进行数据
 转发时有如下规则：
-       a.未分配id的port：如果进来的数据帧没有 vlan tag，它通过 access port 后，会被插入 vlan id tag。 如果进来的一个数据帧带有 vlan id tag，它会被丢弃；
-       b.分配id的port：如果进来的数据帧没有 vlan tag，它通过 access port 后，会被插入 vlan id tag。 如果进来的一个数据帧带有 vlan id tag 并且与 
+       a.未分配id的port：如果进来的数据帧没有 vlan tag，它通过 access port 后，会被插入 vlan id tag。 如果进来的一个数据帧带有 vlan id tag，它
+       会被丢弃；
+       b.分配id的port：如果进来的数据帧没有 vlan tag，它通过 access port 后，会被插入 vlan id tag。 如果进来的一个数据帧带有 vlan id tag 并且与
 access port所分配的 vlan id 相同，那么它会被转发；如果不同，则会被丢弃。
    Trunk port： 一个 trunk port 支持多个 VLAN。 它通常用于连接交换机，使得不同交换机之下的机器能够互访；Trunk port 发出和收到的数据包都带有 
 VLAN header，该 header 表明了该数据包属于那个 VLAN；通常来讲，只使用 trunk port 连接两个交换机，而不是用来连接机器和交换机，因为机器不想看到它们
@@ -48,7 +50,8 @@ VLAN header，该 header 表明了该数据包属于那个 VLAN；通常来讲�
  8.交换机端口类型：Access、Hybrid、Trunk
         a.Access类型的端口只能属于1个VLAN，一般用于连接计算机的端口；Access接口只能发送不带标记的数据帧;
         b.Trunk类型的端口可以属于多个VLAN，可以接收和发送多个VLAN的报文，一般用于交换机之间连接的端口；
-        c.Hybrid类型的端口可以属于多个VLAN，可以接收和发送多个VLAN的报文，可以用于交换机之间连接，也可以用于连接用户的计算机。Hybrid端口和Trunk端口的不同之处在于Hybrid端口可以允许多个VLAN的报文发送时不打标签，而Trunk端口只允许缺省VLAN的报文发送时不打标签。
+        c.Hybrid类型的端口可以属于多个VLAN，可以接收和发送多个VLAN的报文，可以用于交换机之间连接，也可以用于连接用户的计算机。Hybrid端口和Trunk端
+ 口的不同之处在于Hybrid端口可以允许多个VLAN的报文发送时不打标签，而Trunk端口只允许缺省VLAN的报文发送时不打标签。
 
 9.ARP(Address Resolution Protocol):将IP地址转化为MAC地址；
 
