@@ -38,14 +38,14 @@ VLAN network的物理网络可以被视为一个分离的VLAN trunk，它使用�
   对Flat和VLAN类型的网络来说，只有Provider network才有意义，即使是这张类型的tenant network，其本质上也是一个实际的物理段；
   对GRE和VXLAN类型的网络来说，只有tenant network才有意义，因为它本身不依赖于具体的物理网络，只是需要物理网络提供IP和组播即可；
   
-7.子网(subnet):是一组IPv4 or IPv6地址以及与其有关联的配置；它是一个地址池，OpenStack可从中向虚拟机(VM)分配IP地址；
+7.子网(subnet):是一组IPv4 or IPv6地址以及与其有关联的配置；它是一个地址池，OpenStack可从中向虚拟机(VM)分配IP地址（DHCPServer）；
 
 8.端口(Port):一个Port代表虚拟网络交换机(logical network switch)上的一个虚机交换端口；虚机的网卡(VIF--Virtual Interface)会被连接到Port上，当虚机
 的VIF连接到Port后，这个vNIC就会拥有MAC地址和IP地址。Port的IP地址是从subnet中分配的；
 
 9.虚机交换机(Virtual switch)
 
-10.虚拟路由器(Virtual router):一个virtual router提供不同网段之间的IP包路由功能；
+10.虚拟路由器(Virtual router):一个virtual router提供不同网段（subnet）之间的IP包路由功能；
   一个 VR 只属于创建它的租户，只用于该租户的子网之间和子网与外网的路由;
   同一网络内的若干子网可以挂在一个 VR 上;
   同一租户的不同网络的没有 IP 地址重叠的子网可以挂在一个 VR 上;有 IP 地址重叠的两个子网不能使用同一个 VR（添加子网到 VR 时会报错）;
@@ -61,5 +61,15 @@ VLAN network的物理网络可以被视为一个分离的VLAN trunk，它使用�
   租户之间的网络是三层隔离的，连通过 VR 做路由都不行，实在要连通的话，需要走物理网络；
   一个租户内的不同网络之间二层隔离的，需要通过 VR 做三层连通；
   一个网络内的不同子网也是二层隔离的，需要通过 VR 做三层连通；
+  
+13.Network：一个具有 tenant 隔离性的虚拟 2 层网络，它使用一个虚拟交换机。除了用于与外网连接的网络外，其它的 network 都只属于创建它的 tenant。 虚机在创建时必须选择至少一个 network，也可以选择使用多块网卡和多个 network 连接。
+
+14.相互关系：
+  1）tenant ---- 1:n ----- network ------- 1：n ------- subnet （一个 tenant 可以拥有多个 network，一个 network 可以包含多个 subnet）
+  2）network ------- 1: n ------- port ------ 1:1 --- subnet（一个network 可以有多个 port， 每个 port 连接一个 subnet）（若创建虚机时指定的是 net-id，那么虚机将随机地从该 network 包含的 subnet 中分配 IP）
+  3）VM ----- 1 : n ---- NIC ----- 1:1 --- port（一个 VM 可以有多个 NIC，每个 NIC 连接一个 port）（可以在创建虚机时指定一个或者多个 port）
+  4）Tenant  ----- 1 : n ---- Router ----- 1 : n ------ subnet/ext-network （一个 tenant 可以拥有多个 router，每个 router 在 Neutron network 节点上使用一个 Linux network namespace，其 ID 就是 neutron router-list 得到的 router 的 ID； 一个 router 连接一个通向外网的 gateway 和多个该 tenant 的 subnet）
+  5）network ---- 1 : 1 ---- Dnamasq  ----- 1: n ----- subnet （一个 network 有一个 Dnsmasq 进程，该进程为多个启动了 DHCP 的 subnet 服务，分配它们拥有的 IP 给虚机）
+  Summary：Neutron 向 OpenStack 提供一个虚拟的大二层网络。在使用 Open vSwitch 时，它类似于一个跨 Neutron 节点和 Nova-compute 节点的虚拟交换机。Neutron 中的 network 是这个大二层网络中使用 VLAN Tag 分割的子网，而 Subnet 是 network 中一段 IP 地址的集合，Port 是 OVS 交换机上的一个端口，它连接虚机的 NIC，使用来自 subnet 的 IP 地址。
   
 
